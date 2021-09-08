@@ -25,3 +25,13 @@ class Server :
     @classmethod
     def send(self, data, socket) :
         return socket.sendall(data)
+
+class Client(Server) :
+    def connect(self) :
+        self.socket.connect((self.host, self.port))
+
+    def receive(self, buffer_size) :
+        return self.socket.recv(buffer_size)
+
+    def send(self, data) :
+        return self.socket.sendall(data)

@@ -8,7 +8,6 @@ port = 8080
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((host, port))
 
-
 while True :
     try :
         data = client.recv(102400)
@@ -17,5 +16,9 @@ while True :
         if packet.packet_name == "message" :
             print(packet.data)
 
+            client.sendall(Packet("message", "hello world, too").encode())
+            client.sendall(Packet("data", "zzzz").encode())
+
     except KeyboardInterrupt :
         break
+        # pass

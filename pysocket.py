@@ -7,6 +7,18 @@ from threading import Thread
 import time
 
 class PySocket :
+    def __clientCallback(self, client) :
+        while client.thread_state :
+            try :
+                data = Server.receive(self.receive_size, client.socket)
+                packet = Packet.decode(data)
+                client.data = packet.data
+
+                self.event.emit(packet.packet_name, args=[client])
+
+            except :
+                break
+
     def __connectCallback(self) :
         while self.threads_state :
             try :
@@ -16,19 +28,23 @@ class PySocket :
                     self.server.client_socket,
                     self.server.addr
                 )
+                client.thread = Thread(target=self.__clientCallback, args=(client,))
+                client.thread.daemon = True
+                client.thread.start()
 
                 self.clients.append(client)
                 self.event.emit("connect", args=[client])
 
             except :
                 break
-    
+
     def __disconnectCallback(self) :
         while self.threads_state :
             try :
                 for i, client in enumerate(self.clients) :
                     if not self.check(client.socket) :
                         self.event.emit("disconnect", args=[client])
+                        client.stop()
                         self.clients.pop(i)
 
                 time.sleep(self.delay)
@@ -44,6 +60,7 @@ class PySocket :
         self.server.listen()
 
         self.clients = []
+        self.receive_size = 100000 # default receive buffer size
         self.delay = 0.5 # default delay (0.5s = 500ms)
         self.threads_state = True
 

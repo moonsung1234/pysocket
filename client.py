@@ -16,11 +16,16 @@ class Client :
         self.socket = socket
         self.addr = addr
         self.id = self.__createSocketId()
+        
+        self.thread = None
+        self.thread_state = True # client working for thread
+        self.data = None
 
     def emit(self, event_name, data) :
         send_packet = Packet(event_name, data)
         
         Server.send(send_packet.encode(), self.socket)
 
-    def close(self) :
+    def stop(self) :
         self.socket.close()
+        self.thread_state = False
