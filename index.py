@@ -15,16 +15,12 @@ def connect(client) :
 def message(client) :
     print(client.id, "'s message : ", client.data)
 
-def data(client) :
-    print("data : ", client.data)
-
 def disconnect(client) :
-    print(client.id, "disconnect!")
+    print(client.id, " disconnect!")
     print("addr : ", client.addr)
 
 ps.on("connect", connect)
 ps.on("message", message)
-ps.on("data", data)
 ps.on("disconnect", disconnect)
 
 ps.connect()

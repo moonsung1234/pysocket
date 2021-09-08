@@ -8,24 +8,52 @@
 <br/>
 <br/>
 
-- index.py
+- index.py (server program)
 
 ```python
-from pysocket import PySocket
+from pysocket import PySocketServer
 
 host = "host ip"
-port = "port in number"
+port = "port (int)"
 
-ps = PySocket(host, port)
+ps = PySocketServer(host, port)
 
 def connect(client) :
     print(client.id, " connect!")
+    print("addr : ", client.addr)
+
+    client.emit("message", "helloworld")
+
+def message(client) :
+    print(client.id, "'s message : ", client.data)
 
 def disconnect(client) :
-    print(client.id, "disconnect!")
+    print(client.id, " disconnect!")
+    print("addr : ", client.addr)
 
 ps.on("connect", connect)
+ps.on("message", message)
 ps.on("disconnect", disconnect)
+
+ps.connect()
+```
+
+<br/>
+
+- index2.py (client program)
+
+```python
+from pysocket import PySocketClient
+
+host = "192.168.219.110"
+port = 8080
+
+ps = PySocketClient(host, port)
+
+def message(msg) :
+    print("server : ", msg)
+
+ps.on("message", message)
 
 ps.connect()
 ```
