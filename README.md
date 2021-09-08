@@ -46,8 +46,8 @@ ps.connect()
 ```python
 from pysocket import PySocketClient
 
-host = "192.168.219.110"
-port = 8080
+host = "server host ip"
+port = "server port (int)"
 
 ps = PySocketClient(host, port)
 
