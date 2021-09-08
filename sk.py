@@ -1,7 +1,7 @@
 
 import socket
 
-class Server :
+class ServerSocket :
     def __init__(self, host, port) :
         self.host = host
         self.port = port
@@ -26,7 +26,7 @@ class Server :
     def send(self, data, socket) :
         return socket.sendall(data)
 
-class Client(Server) :
+class ClientSocket(ServerSocket) :
     def connect(self) :
         self.socket.connect((self.host, self.port))
 

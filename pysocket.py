@@ -1,16 +1,17 @@
 
-from sk import Server
+from sk import ServerSocket
+from sk import ClientSocket
 from event import Event
 from client import Client
 from packet import Packet
 from threading import Thread
 import time
 
-class PySocket :
+class PySocketServer :
     def __clientCallback(self, client) :
         while client.thread_state :
             try :
-                data = Server.receive(self.receive_size, client.socket)
+                data = ServerSocket.receive(self.receive_size, client.socket)
                 packet = Packet.decode(data)
                 client.data = packet.data
 
@@ -53,15 +54,15 @@ class PySocket :
                 break
 
     def __init__(self, host, port) :
-        self.server = Server(host, port)
+        self.server = ServerSocket(host, port)
         self.event = Event()
 
         # listen server
         self.server.listen()
 
         self.clients = []
+        self.delay = 0.3 # default delay (0.5s = 500ms)
         self.receive_size = 100000 # default receive buffer size
-        self.delay = 0.5 # default delay (0.5s = 500ms)
         self.threads_state = True
 
         self.connect_thread = Thread(target=self.__connectCallback)
@@ -74,7 +75,7 @@ class PySocket :
 
     def check(self, socket) :
         try :
-            Server.send(Packet("alive", "Are you alive?").encode(), socket)
+            ServerSocket.send(Packet("alive", "Are you alive?").encode(), socket)
         
             return True
 
@@ -97,3 +98,39 @@ class PySocket :
             except KeyboardInterrupt :
                 self.stop()
                 break
+
+class PySocketClient(PySocketServer) :
+    def __setDefaultEvent(self) :
+        self.event.on("alive", lambda s: s)
+        # anything else may be here
+
+    def __serverCallback(self) :
+        self.__setDefaultEvent()
+
+        while self.threads_state :
+            try :
+                data = self.client.receive(self.receive_size)
+                packet = Packet.decode(data)
+
+                self.event.emit(packet.packet_name, args=[packet.data])
+
+            except :
+                break
+
+    def __init__(self, host, port) :
+        self.client = ClientSocket(host, port)
+        self.event = Event()
+
+        self.delay = 0.3 # default
+        self.receive_size = 100000 # default size
+        self.threads_state = True
+
+        self.client.connect()
+
+        self.server_thread = Thread(target=self.__serverCallback)
+        self.server_thread.daemon = True
+        self.server_thread.start()
+
+    def stop(self):
+        self.client.socket.close()
+        self.threads_state = False

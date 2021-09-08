@@ -1,10 +1,10 @@
 
-from pysocket import PySocket
+from pysocket import PySocketServer
 
 host = "192.168.219.110"
 port = 8080
 
-ps = PySocket(host, port)
+ps = PySocketServer(host, port)
 
 def connect(client) :
     print(client.id, " connect!")

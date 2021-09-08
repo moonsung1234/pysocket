@@ -1,24 +1,14 @@
 
-import socket
-from packet import Packet
+from pysocket import PySocketClient
 
 host = "192.168.219.110"
 port = 8080
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect((host, port))
+ps = PySocketClient(host, port)
 
-while True :
-    try :
-        data = client.recv(102400)
-        packet = Packet.decode(data)
+def message(msg) :
+    print("server : ", msg)
 
-        if packet.packet_name == "message" :
-            print(packet.data)
+ps.on("message", message)
 
-            client.sendall(Packet("message", "hello world, too").encode())
-            client.sendall(Packet("data", "zzzz").encode())
-
-    except KeyboardInterrupt :
-        break
-        # pass
+ps.connect()

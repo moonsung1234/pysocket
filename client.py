@@ -1,5 +1,5 @@
 
-from sk import Server
+from sk import ServerSocket
 from packet import Packet
 import random
 
@@ -24,7 +24,7 @@ class Client :
     def emit(self, event_name, data) :
         send_packet = Packet(event_name, data)
         
-        Server.send(send_packet.encode(), self.socket)
+        ServerSocket.send(send_packet.encode(), self.socket)
 
     def stop(self) :
         self.socket.close()
