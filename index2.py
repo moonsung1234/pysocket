@@ -6,8 +6,8 @@ port = 8080
 
 ps = PySocketClient(host, port)
 
-def message(msg) :
-    print("server : ", msg)
+def message(server) :
+    print("server : ", server.data)
 
 ps.on("message", message)
 

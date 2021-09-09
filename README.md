@@ -24,15 +24,11 @@ def connect(client) :
 
     client.emit("message", "helloworld")
 
-def message(client) :
-    print(client.id, "'s message : ", client.data)
-
 def disconnect(client) :
     print(client.id, " disconnect!")
     print("addr : ", client.addr)
 
 ps.on("connect", connect)
-ps.on("message", message)
 ps.on("disconnect", disconnect)
 
 ps.connect()
@@ -51,8 +47,8 @@ port = "server port (int)"
 
 ps = PySocketClient(host, port)
 
-def message(msg) :
-    print("server : ", msg)
+def message(server) :
+    print("server : ", server.data)
 
 ps.on("message", message)
 

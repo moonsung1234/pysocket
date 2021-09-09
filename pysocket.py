@@ -1,8 +1,7 @@
 
-from sk import ServerSocket
-from sk import ClientSocket
+from sk import ServerSocket, ClientSocket
 from event import Event
-from client import Client
+from client import Client, Server
 from packet import Packet
 from threading import Thread
 import time
@@ -26,6 +25,7 @@ class PySocketServer :
                 self.server.connect()
 
                 client = Client(
+                    self.clients,
                     self.server.client_socket,
                     self.server.addr
                 )
@@ -45,7 +45,7 @@ class PySocketServer :
                 for i, client in enumerate(self.clients) :
                     if not self.check(client.socket) :
                         self.event.emit("disconnect", args=[client])
-                        client.stop()
+                        client.close()
                         self.clients.pop(i)
 
                 time.sleep(self.delay)
@@ -85,7 +85,7 @@ class PySocketServer :
     def on(self, event_name, callback) :
         self.event.on(event_name, callback)
 
-    def stop(self) :
+    def close(self) :
         self.server.socket.close()
         self.threads_state = False
 
@@ -96,7 +96,7 @@ class PySocketServer :
                 time.sleep(self.delay)
 
             except KeyboardInterrupt :
-                self.stop()
+                self.close()
                 break
 
 class PySocketClient(PySocketServer) :
@@ -104,15 +104,16 @@ class PySocketClient(PySocketServer) :
         self.event.on("alive", lambda s: s)
         # anything else may be here
 
-    def __serverCallback(self) :
+    def __serverCallback(self, server) :
         self.__setDefaultEvent()
 
         while self.threads_state :
             try :
                 data = self.client.receive(self.receive_size)
                 packet = Packet.decode(data)
+                server.data = packet.data
 
-                self.event.emit(packet.packet_name, args=[packet.data])
+                self.event.emit(packet.packet_name, args=[server])
 
             except :
                 break
@@ -127,10 +128,10 @@ class PySocketClient(PySocketServer) :
 
         self.client.connect()
 
-        self.server_thread = Thread(target=self.__serverCallback)
+        self.server_thread = Thread(target=self.__serverCallback, args=[Server(self.client.socket)])
         self.server_thread.daemon = True
         self.server_thread.start()
 
-    def stop(self):
+    def close(self):
         self.client.socket.close()
         self.threads_state = False
