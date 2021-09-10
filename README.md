@@ -6,6 +6,10 @@
 ### Python Socket Module
 
 <br/>
+
+    pip install py-socket-io
+
+<br/>
 <br/>
 
 - index.py (server program)

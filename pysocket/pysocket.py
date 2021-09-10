@@ -1,8 +1,8 @@
 
-from sk import ServerSocket, ClientSocket
-from event import Event
-from client import Client, Server
-from packet import Packet
+from .sk import ServerSocket, ClientSocket
+from .event import Event
+from .client import Client, Server
+from .packet import Packet
 from threading import Thread
 import time
 

@@ -1,6 +1,6 @@
 
-from sk import ServerSocket
-from packet import Packet
+from .sk import ServerSocket
+from .packet import Packet
 import random
 
 class Client :
